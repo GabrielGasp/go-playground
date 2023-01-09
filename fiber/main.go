@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
@@ -69,6 +70,8 @@ func main() {
 
 	// recover middleware
 	app.Use(recover.New())
+	// logger middleware
+	app.Use(logger.New())
 
 	app.Get("/teste", handler)
 
