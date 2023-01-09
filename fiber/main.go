@@ -1,46 +1,17 @@
 package main
 
 import (
-	"math/rand"
-	"time"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
-type Teste struct {
-	A int `json:"a,omitempty"`
-	B int `json:"b,omitempty"`
-	C int `json:"c,omitempty"`
-}
-
-func rng(max int) int {
-	rand.Seed(time.Now().UnixNano())
-	return rand.Intn(max) + 1
-}
-
 func handler(c *fiber.Ctx) error {
 	// initialize struct
-	t := new(Teste)
 
-	// get query params
-	incA := c.Query("a")
-	incB := c.Query("b")
-	incC := c.Query("c")
-
-	// insert values
-	if incA == "true" {
-		t.A = rng(100)
-	}
-	if incB == "true" {
-		t.B = rng(100)
-	}
-	if incC == "true" {
-		t.C = rng(100)
-	}
-
-	return c.JSON(t)
+	return c.JSON(fiber.Map{
+		"message": "OK",
+	})
 }
 
 func errorHandler(c *fiber.Ctx, err error) error {
@@ -63,7 +34,7 @@ func errorHandler(c *fiber.Ctx, err error) error {
 	})
 }
 
-func main() {
+func fiberSetup() *fiber.App {
 	app := fiber.New(fiber.Config{
 		ErrorHandler: errorHandler,
 	})
@@ -73,7 +44,13 @@ func main() {
 	// logger middleware
 	app.Use(logger.New())
 
-	app.Get("/teste", handler)
+	app.Get("/", handler)
+
+	return app
+}
+
+func main() {
+	app := fiberSetup()
 
 	app.Listen(":3000")
 }
