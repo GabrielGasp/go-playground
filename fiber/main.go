@@ -45,15 +45,20 @@ func handler(c *fiber.Ctx) error {
 func errorHandler(c *fiber.Ctx, err error) error {
 	// Status code defaults to 500
 	code := fiber.StatusInternalServerError
+	errorMsg := "Something went wrong!"
 
 	// Retrieve the custom status code if it's an fiber.*Error
 	if e, ok := err.(*fiber.Error); ok {
 		code = e.Code
 	}
 
+	if code == fiber.StatusNotFound {
+		errorMsg = "Not found"
+	}
+
 	// Send error page
 	return c.Status(code).JSON(fiber.Map{
-		"error": "Something went wrong!",
+		"error": errorMsg,
 	})
 }
 
