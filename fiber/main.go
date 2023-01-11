@@ -7,8 +7,6 @@ import (
 )
 
 func handler(c *fiber.Ctx) error {
-	// initialize struct
-
 	return c.JSON(fiber.Map{
 		"message": "OK",
 	})
