@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 )
 
@@ -27,19 +26,16 @@ func fetchJoke(url string) {
 		fmt.Println(err)
 		return
 	}
-
 	defer resp.Body.Close()
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println(err)
+	if resp.StatusCode != http.StatusOK {
+		fmt.Println("Error: ", resp.StatusCode)
 		return
 	}
 
 	var joke jokeResponse
 
-	err = json.Unmarshal(body, &joke)
-	if err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&joke); err != nil {
 		fmt.Println(err)
 		return
 	}
