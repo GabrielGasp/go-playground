@@ -1,3 +1,3 @@
-module context
+module ctx
 
 go 1.19
