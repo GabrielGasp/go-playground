@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"math"
+	"runtime"
 	"sync"
+	"time"
 )
 
 func sum(nums []int) int {
@@ -15,21 +18,35 @@ func sum(nums []int) int {
 	return total
 }
 
+func calculateChunkSize(datasize int, numOfChunks int) int {
+	chunkSize := math.Ceil(float64(datasize) / float64(numOfChunks))
+
+	return int(chunkSize)
+}
+
 func concurrentSum(nums []int) int {
-	numOfChunks := 4
+	numOfChunks := runtime.NumCPU()
+
+	if numOfChunks > len(nums) {
+		numOfChunks = len(nums)
+	}
+
 	sums := make([]int, numOfChunks)
+
 	var wg sync.WaitGroup
 	wg.Add(numOfChunks)
 
-	chunkSize := (len(nums) + numOfChunks - 1) / numOfChunks
-
-	fmt.Println("Chunk Size:", chunkSize)
+	chunkSize := calculateChunkSize(len(nums), numOfChunks)
 
 	for i := 0; i < numOfChunks; i++ {
 		go func(i int) {
 			defer wg.Done()
 			start := i * chunkSize
 			end := (i + 1) * chunkSize
+
+			if start >= len(nums) {
+				return
+			}
 
 			if end > len(nums) {
 				end = len(nums)
@@ -45,9 +62,16 @@ func concurrentSum(nums []int) int {
 }
 
 func main() {
-	slice := []int{10, 20, 30, 40, 50, 60, 70, 80, 90, 100}
-	fmt.Println("Numbers:", slice)
+	slice := []int{}
+
+	for i := 1; i <= 100000000; i++ {
+		slice = append(slice, i)
+	}
+
+	start := time.Now()
 
 	total := concurrentSum(slice)
 	fmt.Println("The Sum of the elements of slice is:", total)
+
+	fmt.Println("Time taken:", time.Since(start))
 }
