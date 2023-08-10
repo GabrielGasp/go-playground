@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"sync"
-	"time"
 )
 
 type BankAccount struct {
@@ -12,19 +11,24 @@ type BankAccount struct {
 	accountLock sync.Mutex // only accessible by BankAccount methods
 }
 
-func (account *BankAccount) Withdraw(amount int) {
+func (account *BankAccount) Withdraw(amount int, wg *sync.WaitGroup) {
+	defer wg.Done()
+	defer account.accountLock.Unlock()
+
 	account.accountLock.Lock()
 	account.Balance -= amount
 	fmt.Println("Balance: ", account.Balance)
-	account.accountLock.Unlock()
 }
 
 func main() {
+	var wg sync.WaitGroup
+
 	account := BankAccount{Owner: "John", Balance: 100}
 
 	for i := 0; i < 12; i++ {
-		go account.Withdraw(10)
+		wg.Add(1)
+		go account.Withdraw(10, &wg)
 	}
 
-	time.Sleep(1 * time.Second)
+	wg.Wait()
 }
