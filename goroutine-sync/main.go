@@ -5,21 +5,17 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"sync"
 )
 
 type ChuckNorrisJoke struct {
 	Value string `json:"value"`
+	err   error
 }
 
-func GetChuckNorrisJoke(wg *sync.WaitGroup, ch chan<- string, errCh chan<- error) {
-	defer wg.Done()
-
-	// errCh <- fmt.Errorf("chuck norris error")
-
+func GetChuckNorrisJoke(ch chan<- ChuckNorrisJoke) {
 	resp, err := http.Get("https://api.chucknorris.io/jokes/random")
 	if err != nil {
-		errCh <- err
+		ch <- ChuckNorrisJoke{err: err}
 		return
 	}
 	defer resp.Body.Close()
@@ -29,26 +25,23 @@ func GetChuckNorrisJoke(wg *sync.WaitGroup, ch chan<- string, errCh chan<- error
 	joke := ChuckNorrisJoke{}
 	err = json.Unmarshal(body, &joke)
 	if err != nil {
-		errCh <- err
+		ch <- ChuckNorrisJoke{err: err}
 		return
 	}
 
-	ch <- joke.Value
+	ch <- joke
 }
 
 type DadJoke struct {
 	Setup     string `json:"setup"`
 	Punchline string `json:"punchline"`
+	err       error
 }
 
-func GetDadJoke(wg *sync.WaitGroup, ch chan<- string, errCh chan<- error) {
-	defer wg.Done()
-
-	// errCh <- fmt.Errorf("dad error")
-
+func GetDadJoke(ch chan<- DadJoke) {
 	resp, err := http.Get("https://official-joke-api.appspot.com/random_joke")
 	if err != nil {
-		errCh <- err
+		ch <- DadJoke{err: err}
 		return
 	}
 	defer resp.Body.Close()
@@ -58,41 +51,32 @@ func GetDadJoke(wg *sync.WaitGroup, ch chan<- string, errCh chan<- error) {
 	joke := DadJoke{}
 	err = json.Unmarshal(body, &joke)
 	if err != nil {
-		errCh <- err
+		ch <- DadJoke{err: err}
 		return
 	}
 
-	ch <- joke.Setup + " " + joke.Punchline
+	ch <- joke
 }
 
 func main() {
-	wg := sync.WaitGroup{}
-	chuckNorrisCh := make(chan string, 1)
-	dadCh := make(chan string, 1)
-	errCh := make(chan error, 1)
+	chuckNorrisCh := make(chan ChuckNorrisJoke)
+	dadCh := make(chan DadJoke)
 
-	wg.Add(2)
+	go GetChuckNorrisJoke(chuckNorrisCh)
+	go GetDadJoke(dadCh)
 
-	go GetChuckNorrisJoke(&wg, chuckNorrisCh, errCh)
-	go GetDadJoke(&wg, dadCh, errCh)
-
-	go func() {
-		wg.Wait()
-		close(chuckNorrisCh)
-		close(dadCh)
-		close(errCh)
-	}()
-
-	if err := <-errCh; err != nil {
-		fmt.Println(err)
+	chuckNorrisJoke := <-chuckNorrisCh
+	if chuckNorrisJoke.err != nil {
+		fmt.Println(chuckNorrisJoke.err)
 		return
 	}
 
-	chuckNorrisJoke := <-chuckNorrisCh
-	fmt.Println(chuckNorrisJoke)
-
 	dadJoke := <-dadCh
-	fmt.Println(dadJoke)
+	if dadJoke.err != nil {
+		fmt.Println(dadJoke.err)
+		return
+	}
 
-	fmt.Println("Done!")
+	fmt.Println(chuckNorrisJoke.Value)
+	fmt.Println(dadJoke.Setup, dadJoke.Punchline)
 }
