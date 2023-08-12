@@ -15,7 +15,7 @@ type ChuckNorrisJoke struct {
 func GetChuckNorrisJoke(wg *sync.WaitGroup, ch chan<- string, errCh chan<- error) {
 	defer wg.Done()
 
-	// errCh <- fmt.Errorf("this is an error")
+	// errCh <- fmt.Errorf("chuck norris error")
 
 	resp, err := http.Get("https://api.chucknorris.io/jokes/random")
 	if err != nil {
@@ -44,7 +44,7 @@ type DadJoke struct {
 func GetDadJoke(wg *sync.WaitGroup, ch chan<- string, errCh chan<- error) {
 	defer wg.Done()
 
-	// errCh <- fmt.Errorf("this is an error")
+	// errCh <- fmt.Errorf("dad error")
 
 	resp, err := http.Get("https://official-joke-api.appspot.com/random_joke")
 	if err != nil {
@@ -83,18 +83,16 @@ func main() {
 		close(errCh)
 	}()
 
-	for err := range errCh {
+	if err := <-errCh; err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	for joke := range chuckNorrisCh {
-		fmt.Println(joke)
-	}
+	chuckNorrisJoke := <-chuckNorrisCh
+	fmt.Println(chuckNorrisJoke)
 
-	for joke := range dadCh {
-		fmt.Println(joke)
-	}
+	dadJoke := <-dadCh
+	fmt.Println(dadJoke)
 
 	fmt.Println("Done!")
 }
