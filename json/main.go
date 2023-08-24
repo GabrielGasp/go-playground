@@ -18,4 +18,12 @@ func main() {
 	json.Unmarshal(j, &s)
 
 	fmt.Printf("%+v\n", s)
+
+	jj := jstruct{
+		Name: "Xena",
+	}
+
+	jj2, _ := json.Marshal(jj)
+
+	fmt.Println(string(jj2))
 }
