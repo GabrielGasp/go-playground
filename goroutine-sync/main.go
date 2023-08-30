@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
+
+	"golang.org/x/sync/errgroup"
 )
 
 type ChuckNorrisJoke struct {
@@ -12,11 +16,10 @@ type ChuckNorrisJoke struct {
 	err   error
 }
 
-func GetChuckNorrisJoke(ch chan<- ChuckNorrisJoke) {
+func GetChuckNorrisJoke() (string, error) {
 	resp, err := http.Get("https://api.chucknorris.io/jokes/random")
 	if err != nil {
-		ch <- ChuckNorrisJoke{err: err}
-		return
+		return "", err
 	}
 	defer resp.Body.Close()
 
@@ -25,11 +28,10 @@ func GetChuckNorrisJoke(ch chan<- ChuckNorrisJoke) {
 	joke := ChuckNorrisJoke{}
 	err = json.Unmarshal(body, &joke)
 	if err != nil {
-		ch <- ChuckNorrisJoke{err: err}
-		return
+		return "", err
 	}
 
-	ch <- joke
+	return joke.Value, nil
 }
 
 type DadJoke struct {
@@ -38,11 +40,10 @@ type DadJoke struct {
 	err       error
 }
 
-func GetDadJoke(ch chan<- DadJoke) {
+func GetDadJoke() (string, error) {
 	resp, err := http.Get("https://official-joke-api.appspot.com/random_joke")
 	if err != nil {
-		ch <- DadJoke{err: err}
-		return
+		return "", err
 	}
 	defer resp.Body.Close()
 
@@ -51,32 +52,34 @@ func GetDadJoke(ch chan<- DadJoke) {
 	joke := DadJoke{}
 	err = json.Unmarshal(body, &joke)
 	if err != nil {
-		ch <- DadJoke{err: err}
-		return
+		return "", err
 	}
 
-	ch <- joke
+	return joke.Setup + " " + joke.Punchline, nil
 }
 
 func main() {
-	chuckNorrisCh := make(chan ChuckNorrisJoke)
-	dadCh := make(chan DadJoke)
+	var chuckNorrisJoke string
+	var dadJoke string
 
-	go GetChuckNorrisJoke(chuckNorrisCh)
-	go GetDadJoke(dadCh)
+	g, _ := errgroup.WithContext(context.Background())
 
-	chuckNorrisJoke := <-chuckNorrisCh
-	if chuckNorrisJoke.err != nil {
-		fmt.Println(chuckNorrisJoke.err)
-		return
+	g.Go(func() error {
+		var err error
+		chuckNorrisJoke, err = GetChuckNorrisJoke()
+		return err
+	})
+
+	g.Go(func() error {
+		var err error
+		dadJoke, err = GetDadJoke()
+		return err
+	})
+
+	if err := g.Wait(); err != nil {
+		log.Fatal(err)
 	}
 
-	dadJoke := <-dadCh
-	if dadJoke.err != nil {
-		fmt.Println(dadJoke.err)
-		return
-	}
-
-	fmt.Println(chuckNorrisJoke.Value)
-	fmt.Println(dadJoke.Setup, dadJoke.Punchline)
+	fmt.Println(chuckNorrisJoke)
+	fmt.Println(dadJoke)
 }
