@@ -22,6 +22,8 @@ func main() {
 
 	defer f.Close()
 
+	createFolder()
+
 	g, _ := errgroup.WithContext(context.Background())
 	g.SetLimit(100)
 
@@ -40,14 +42,13 @@ func main() {
 	fmt.Printf("Done in %v\n", time.Since(t))
 }
 
-func downloadIcon(icon string) error {
-	f, err := os.Create("icons/" + icon)
-	if err != nil {
-		return err
+func createFolder() {
+	if _, err := os.Stat("icons"); os.IsNotExist(err) {
+		os.Mkdir("icons", 0755)
 	}
+}
 
-	defer f.Close()
-
+func downloadIcon(icon string) error {
 	url := "https://d1fojj4wte942r.cloudfront.net/e-games/" + icon
 	res, err := http.Get(url)
 	if err != nil {
@@ -56,6 +57,18 @@ func downloadIcon(icon string) error {
 	}
 
 	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		fmt.Printf("Icon %s returned with status %d\n", icon, res.StatusCode)
+		return nil
+	}
+
+	f, err := os.Create("icons/" + icon)
+	if err != nil {
+		return err
+	}
+
+	defer f.Close()
 
 	_, err = io.Copy(f, res.Body)
 	if err != nil {
