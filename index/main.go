@@ -5,5 +5,11 @@ import (
 )
 
 func main() {
-	fmt.Println("Hello World!")
+	x(nil)
+}
+
+func x(s []string) {
+	for _, v := range s {
+		fmt.Println(v)
+	}
 }

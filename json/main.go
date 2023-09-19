@@ -6,13 +6,30 @@ import (
 	"fmt"
 )
 
+type NullableOrOptional[T any] struct {
+	Present bool
+	Null    bool
+	Value   T
+}
+
+func (f *NullableOrOptional[T]) UnmarshalJSON(b []byte) error {
+	f.Present = true
+
+	if string(b) == "null" {
+		f.Null = true
+		return nil
+	}
+
+	return json.Unmarshal(b, &f.Value)
+}
+
 type jstruct struct {
-	Name string `json:"name"`
-	Age  *int   `json:"age"`
+	Name string                    `json:"name"`
+	Age  NullableOrOptional[uint8] `json:"age"`
 }
 
 func main() {
-	j := []byte(`{"name":27,"age":null}`)
+	j := []byte(`{"name":"Xablau", "gender": "male"}`)
 
 	s := jstruct{}
 
