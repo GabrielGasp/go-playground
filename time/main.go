@@ -22,6 +22,8 @@ func main() {
 	layout := "Monday, January 2, 2006, 15:04 -0700"
 	dateTime := "Thursday, October 23, 2023, 16:12 -0300"
 
+	// If timezone is not set, the time will be parsed as UTC.
+	// If you want to parse the time as a specific timezone, you need to include the timezone or use time.ParseInLocation.
 	parsedTime, err := time.Parse(layout, dateTime)
 	if err != nil {
 		fmt.Println(err)
