@@ -18,4 +18,16 @@ func main() {
 	fmt.Println(startDate)
 	fmt.Println(finishDate)
 	fmt.Println(finishDate.Sub(startDate))
+
+	layout := "Monday, January 2, 2006, 15:04 -0700"
+	dateTime := "Thursday, October 23, 2023, 16:12 -0300"
+
+	parsedTime, err := time.Parse(layout, dateTime)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	fmt.Println(parsedTime)
+	fmt.Println(parsedTime.UTC())
 }
