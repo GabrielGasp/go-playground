@@ -1,14 +1,11 @@
 package main
 
 import (
-	"bench/uniqueids"
+	"bench/forwarded"
 	"fmt"
 )
 
 func main() {
-	fmt.Println("UUID V4 (Google): ", uniqueids.UUIDV4Google())
-	fmt.Println("UUID V4 (Gofrs):  ", uniqueids.UUIDV4Gofrs())
-	fmt.Println("UUID V7:          ", uniqueids.UUIDV7())
-	fmt.Println("ULID:             ", uniqueids.ULID())
-	fmt.Println("KSUID:            ", uniqueids.KSUID())
+	realIP := forwarded.GetIpWithoutSplit(`for=192.168.0.1, for=192.168.0.2;host=api.homolog.boongcloud.net;proto=https`)
+	fmt.Println(realIP)
 }

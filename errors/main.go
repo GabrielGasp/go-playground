@@ -5,40 +5,34 @@ import (
 	"fmt"
 )
 
-type DivisionError struct {
-	IntA int
-	IntB int
-	Msg  string
+type error1 struct {
+	msg string
 }
 
-func (e *DivisionError) Error() string {
-	return e.Msg
+func newError1(msg string) error {
+	return error1{msg}
 }
 
-func Divide(a, b int) (int, error) {
-	if b == 0 {
-		return 0, &DivisionError{
-			Msg:  fmt.Sprintf("cannot divide '%d' by zero", a),
-			IntA: a, IntB: b,
-		}
-	}
-	return a / b, nil
+func (e error1) Error() string {
+	return e.msg
 }
 
 func main() {
-	a, b := 10, 0
-	result, err := Divide(a, b)
-	if err != nil {
-		var divErr *DivisionError
-		switch {
-		case errors.As(err, &divErr):
-			fmt.Printf("%d / %d is not mathematically valid: %s\n",
-				divErr.IntA, divErr.IntB, divErr.Error())
-		default:
-			fmt.Printf("unexpected division error: %s\n", err)
-		}
-		return
+	err := newError1("error1")
+	err = fmt.Errorf("error2: %w", err)
+
+	if _, ok := err.(error1); ok {
+		fmt.Println("err is error1")
+	} else {
+		fmt.Println("err1 is not error1")
 	}
 
-	fmt.Printf("%d / %d = %d\n", a, b, result)
+	var err1 *error1
+	errors.As(err, &err1)
+
+	if err1 == nil {
+		fmt.Println("err is error1")
+	} else {
+		fmt.Println("err1 is not error1")
+	}
 }
