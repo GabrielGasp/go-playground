@@ -8,3 +8,5 @@ require (
 	github.com/oklog/ulid/v2 v2.1.0
 	github.com/segmentio/ksuid v1.0.4
 )
+
+require github.com/mitchellh/hashstructure/v2 v2.0.2
