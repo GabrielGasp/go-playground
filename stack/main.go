@@ -13,11 +13,11 @@ func NewStack[T any]() stack[T] {
 	return stack[T]{}
 }
 
-func (s *stack[T]) Add(v T) {
+func (s *stack[T]) Push(v T) {
 	s.items = append(s.items, v)
 }
 
-func (s *stack[T]) Remove() (T, error) {
+func (s *stack[T]) Pop() (T, error) {
 	var v T
 	i := len(s.items) - 1
 
@@ -33,18 +33,18 @@ func (s *stack[T]) Remove() (T, error) {
 func main() {
 	s := NewStack[int]()
 
-	s.Add(1)
+	s.Push(1)
 	fmt.Println(s)
-	s.Add(2)
+	s.Push(2)
 	fmt.Println(s)
-	s.Add(3)
+	s.Push(3)
 	fmt.Println(s)
 
-	fmt.Println(s.Remove())
+	fmt.Println(s.Pop())
 	fmt.Println(s)
-	fmt.Println(s.Remove())
+	fmt.Println(s.Pop())
 	fmt.Println(s)
-	fmt.Println(s.Remove())
+	fmt.Println(s.Pop())
 	fmt.Println(s)
-	fmt.Println(s.Remove())
+	fmt.Println(s.Pop())
 }
