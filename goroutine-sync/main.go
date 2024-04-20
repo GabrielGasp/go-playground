@@ -1,25 +1,26 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
-
-	"golang.org/x/sync/errgroup"
+	"sync"
 )
 
 type ChuckNorrisJoke struct {
 	Value string `json:"value"`
-	err   error
 }
 
-func GetChuckNorrisJoke() (string, error) {
+func GetChuckNorrisJoke(wg *sync.WaitGroup, ch chan<- string, errCh chan<- error) {
+	defer wg.Done()
+
+	// errCh <- fmt.Errorf("chuck norris error")
+
 	resp, err := http.Get("https://api.chucknorris.io/jokes/random")
 	if err != nil {
-		return "", err
+		errCh <- err
+		return
 	}
 	defer resp.Body.Close()
 
@@ -28,22 +29,27 @@ func GetChuckNorrisJoke() (string, error) {
 	joke := ChuckNorrisJoke{}
 	err = json.Unmarshal(body, &joke)
 	if err != nil {
-		return "", err
+		errCh <- err
+		return
 	}
 
-	return joke.Value, nil
+	ch <- joke.Value
 }
 
 type DadJoke struct {
 	Setup     string `json:"setup"`
 	Punchline string `json:"punchline"`
-	err       error
 }
 
-func GetDadJoke() (string, error) {
+func GetDadJoke(wg *sync.WaitGroup, ch chan<- string, errCh chan<- error) {
+	defer wg.Done()
+
+	// errCh <- fmt.Errorf("dad error")
+
 	resp, err := http.Get("https://official-joke-api.appspot.com/random_joke")
 	if err != nil {
-		return "", err
+		errCh <- err
+		return
 	}
 	defer resp.Body.Close()
 
@@ -52,34 +58,49 @@ func GetDadJoke() (string, error) {
 	joke := DadJoke{}
 	err = json.Unmarshal(body, &joke)
 	if err != nil {
-		return "", err
+		errCh <- err
+		return
 	}
 
-	return joke.Setup + " " + joke.Punchline, nil
+	ch <- joke.Setup + " " + joke.Punchline
 }
 
 func main() {
-	var chuckNorrisJoke string
-	var dadJoke string
+	wg := sync.WaitGroup{}
+	chuckNorrisCh := make(chan string, 1)
+	dadCh := make(chan string, 1)
+	errCh := make(chan error, 2)
 
-	g, _ := errgroup.WithContext(context.Background())
+	wg.Add(2)
 
-	g.Go(func() error {
-		var err error
-		chuckNorrisJoke, err = GetChuckNorrisJoke()
-		return err
-	})
+	go GetChuckNorrisJoke(&wg, chuckNorrisCh, errCh)
+	go GetDadJoke(&wg, dadCh, errCh)
 
-	g.Go(func() error {
-		var err error
-		dadJoke, err = GetDadJoke()
-		return err
-	})
+	go func() {
+		wg.Wait()
+		close(chuckNorrisCh)
+		close(dadCh)
+		close(errCh)
+	}()
 
-	if err := g.Wait(); err != nil {
-		log.Fatal(err)
+	errs := make([]error, 0, 2)
+	for err := range errCh {
+		errs = append(errs, err)
 	}
 
+	if len(errs) > 0 {
+		for _, err := range errs {
+			fmt.Println(err)
+		}
+		fmt.Println("Done with error!")
+		return
+	}
+
+	chuckNorrisJoke := <-chuckNorrisCh
 	fmt.Println(chuckNorrisJoke)
+
+	dadJoke := <-dadCh
 	fmt.Println(dadJoke)
+
+	fmt.Println("Done with jokes!")
 }

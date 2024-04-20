@@ -1,23 +1,19 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	"time"
 )
 
-type teste struct {
-	Name   string      `json:"name"`
-	Number json.Number `json:"number"`
-}
-
 func main() {
-	j := `{"name":"test","number":1234567890123456789012345678901234567890}`
+	now := time.Now()
 
-	var t teste
-	err := json.Unmarshal([]byte(j), &t)
-	if err != nil {
-		fmt.Println(err)
+	startDate := time.Date(2023, 8, 23, 0, 0, 0, 0, time.UTC)
+	endDate := time.Date(2024, 2, 28, 0, 0, 0, 0, time.UTC)
+
+	for date := startDate; !date.After(endDate); date = date.AddDate(0, 0, 1) {
+		fmt.Println(date.Format("2006-01-02"))
 	}
 
-	fmt.Println(t.Number.String())
+	fmt.Println("Time taken:", time.Since(now))
 }
