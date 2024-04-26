@@ -1,8 +1,10 @@
-package main
+package repository
 
-import "database/sql"
+import (
+	"database/sql"
+)
 
-type BasicDB interface {
+type DBOps interface {
 	Exec(query string, args ...interface{}) (sql.Result, error)
 	Prepare(query string) (*sql.Stmt, error)
 	Query(query string, args ...interface{}) (*sql.Rows, error)
@@ -14,14 +16,25 @@ type repositories struct {
 	// Add more repositories here
 }
 
-func bootstrapRepositories(db BasicDB) repositories {
+func bootstrapRepositories(conn DBOps) repositories {
 	return repositories{
-		ExampleRepo: NewExampleRepo(db),
+		ExampleRepo: NewExampleRepo(conn),
 		// Add more repositories here
 	}
 }
 
 // ----------------------------------------------------------
+
+// type SqlDb interface {
+// 	Begin() (SqlTx, error)
+// 	DBOps
+// }
+
+// type SqlTx interface {
+// 	Commit() error
+// 	Rollback() error
+// 	DBOps
+// }
 
 type RepositoryManager interface {
 	RunAtomic(fn func(atomicRepositoryManager RepositoryManager) error) error
@@ -35,19 +48,23 @@ type repositoryManager struct {
 }
 
 func NewRepositoryManager(db *sql.DB) RepositoryManager {
-	return &repositoryManager{
+	return repositoryManager{
 		db:    db,
 		repos: bootstrapRepositories(db),
 	}
 }
 
-func (rm *repositoryManager) RunAtomic(fn func(atomicRepositoryManager RepositoryManager) error) error {
+func (rm repositoryManager) RunAtomic(fn func(atomicRepositoryManager RepositoryManager) error) error {
+	if rm.db == nil { // this means we are already in a transaction
+		return fn(rm)
+	}
+
 	tx, err := rm.db.Begin()
 	if err != nil {
 		return err
 	}
 
-	atomicRepositoryManager := &repositoryManager{repos: bootstrapRepositories(tx)}
+	atomicRepositoryManager := repositoryManager{repos: bootstrapRepositories(tx)}
 
 	if err = fn(atomicRepositoryManager); err != nil {
 		tx.Rollback()
@@ -57,6 +74,6 @@ func (rm *repositoryManager) RunAtomic(fn func(atomicRepositoryManager Repositor
 	return tx.Commit()
 }
 
-func (rm *repositoryManager) ExampleRepo() ExampleRepo {
+func (rm repositoryManager) ExampleRepo() ExampleRepo {
 	return rm.repos.ExampleRepo
 }

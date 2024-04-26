@@ -2,6 +2,8 @@ package main
 
 import (
 	"database/sql"
+	"sql-playground/repository"
+	"sql-playground/service"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -9,9 +11,9 @@ import (
 func main() {
 	db, _ := sql.Open("sqlite3", ":memory:")
 
-	rm := NewRepositoryManager(db)
+	rm := repository.NewRepositoryManager(db)
 
-	svc := NewExampleService(rm)
+	svc := service.NewExampleService(rm)
 
-	_ = svc.ExecExample()
+	_ = svc.Do()
 }

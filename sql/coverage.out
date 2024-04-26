@@ -1,0 +1,21 @@
+mode: atomic
+sql-playground/repository/example_repository.go:15.45,17.2 1 10
+sql-playground/repository/example_repository.go:32.33,34.66 2 2
+sql-playground/repository/example_repository.go:38.2,40.12 2 1
+sql-playground/repository/example_repository.go:34.66,36.3 1 1
+sql-playground/repository/repository_manager.go:19.53,24.2 1 8
+sql-playground/repository/repository_manager.go:50.57,55.2 1 5
+sql-playground/repository/repository_manager.go:57.103,58.18 1 5
+sql-playground/repository/repository_manager.go:62.2,63.16 2 4
+sql-playground/repository/repository_manager.go:67.2,69.51 2 3
+sql-playground/repository/repository_manager.go:74.2,74.20 1 2
+sql-playground/repository/repository_manager.go:58.18,60.3 1 1
+sql-playground/repository/repository_manager.go:63.16,65.3 1 1
+sql-playground/repository/repository_manager.go:69.51,72.3 2 1
+sql-playground/repository/repository_manager.go:77.55,79.2 1 1
+sql-playground/service/example_service.go:15.72,17.2 1 2
+sql-playground/service/example_service.go:35.36,36.74 1 2
+sql-playground/service/example_service.go:39.2,39.16 1 2
+sql-playground/service/example_service.go:43.2,43.12 1 1
+sql-playground/service/example_service.go:36.74,38.3 1 2
+sql-playground/service/example_service.go:39.16,41.3 1 1
