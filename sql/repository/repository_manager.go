@@ -60,7 +60,12 @@ func (rm repositoryManager) RunAtomic(fn func(atomicRepositoryManager Repository
 		return err
 	}
 
-	return tx.Commit()
+	if err = tx.Commit(); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return nil
 }
 
 func (rm repositoryManager) ExampleRepo() ExampleRepo {

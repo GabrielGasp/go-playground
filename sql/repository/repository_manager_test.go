@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_RunAtomic_CommitSuccessfully(t *testing.T) {
+func Test_RunAtomic_Success(t *testing.T) {
 	mockDB, mock, err := sqlmock.New()
 	assert.NoError(t, err)
 	defer mockDB.Close()
@@ -27,7 +27,7 @@ func Test_RunAtomic_CommitSuccessfully(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func Test_RunAtomic_RollbackSuccessfully(t *testing.T) {
+func Test_RunAtomic_FnError(t *testing.T) {
 	mockDB, mock, err := sqlmock.New()
 	assert.NoError(t, err)
 	defer mockDB.Close()
@@ -45,6 +45,25 @@ func Test_RunAtomic_RollbackSuccessfully(t *testing.T) {
 	})
 
 	assert.Equal(t, expectedErr, err)
+}
+
+func Test_RunAtomic_CommitError(t *testing.T) {
+	mockDB, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer mockDB.Close()
+	defer mock.ExpectationsWereMet()
+
+	mock.ExpectBegin()
+	mock.ExpectCommit().WillReturnError(errors.New("commit error"))
+	mock.ExpectRollback()
+
+	rm := repository.NewRepositoryManager(mockDB)
+
+	err = rm.RunAtomic(func(atomicRM repository.RepositoryManager) error {
+		return nil
+	})
+
+	assert.Error(t, err)
 }
 
 func Test_RunAtomic_NestedTransaction(t *testing.T) {
