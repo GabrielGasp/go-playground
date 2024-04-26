@@ -25,17 +25,6 @@ func bootstrapRepositories(conn DBOps) repositories {
 
 // ----------------------------------------------------------
 
-// type SqlDb interface {
-// 	Begin() (SqlTx, error)
-// 	DBOps
-// }
-
-// type SqlTx interface {
-// 	Commit() error
-// 	Rollback() error
-// 	DBOps
-// }
-
 type RepositoryManager interface {
 	RunAtomic(fn func(atomicRepositoryManager RepositoryManager) error) error
 	ExampleRepo() ExampleRepo
