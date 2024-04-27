@@ -17,12 +17,12 @@ func NewExampleService(rm repository.RepositoryManager) ExampleService {
 }
 
 // func (s exampleService) Do() error {
-// 	fmt.Println("Running without TX")
+// 	fmt.Println("Without RunAtomic")
 // 	s.rm.ExampleRepo().Do()
 
 // 	fmt.Println("")
 
-// 	fmt.Println("Running with TX")
+// 	fmt.Println("With RunAtomic")
 // 	s.rm.RunAtomic(func(atomicRM repository.RepositoryManager) error {
 // 		return atomicRM.ExampleRepo().Do()
 // 	})
