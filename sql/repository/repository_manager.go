@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 )
 
 type DBOps interface {
@@ -55,17 +56,15 @@ func (rm repositoryManager) RunAtomic(fn func(atomicRepositoryManager Repository
 
 	atomicRepositoryManager := repositoryManager{repos: bootstrapRepositories(tx)}
 
-	if err = fn(atomicRepositoryManager); err != nil {
-		tx.Rollback()
-		return err
+	if fnErr := fn(atomicRepositoryManager); fnErr != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return errors.Join(fnErr, rbErr)
+		}
+
+		return fnErr
 	}
 
-	if err = tx.Commit(); err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	return nil
+	return tx.Commit()
 }
 
 func (rm repositoryManager) ExampleRepo() ExampleRepo {

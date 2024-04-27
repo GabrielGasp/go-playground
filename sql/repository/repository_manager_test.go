@@ -9,34 +9,65 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_RunAtomic_Success(t *testing.T) {
-	mockDB, mock, err := sqlmock.New()
+func Test_RepositoryManager_RunAtomic_Success(t *testing.T) {
+	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
-	defer mockDB.Close()
-	defer mock.ExpectationsWereMet()
+	defer func() {
+		err = mock.ExpectationsWereMet()
+		assert.NoError(t, err)
+		db.Close()
+	}()
 
 	mock.ExpectBegin()
 	mock.ExpectCommit()
 
-	rm := repository.NewRepositoryManager(mockDB)
+	rm := repository.NewRepositoryManager(db)
 
 	err = rm.RunAtomic(func(atomicRM repository.RepositoryManager) error {
 		return nil
 	})
 
 	assert.NoError(t, err)
+
+	err = mock.ExpectationsWereMet()
+	assert.NoError(t, err)
 }
 
-func Test_RunAtomic_FnError(t *testing.T) {
-	mockDB, mock, err := sqlmock.New()
+func Test_RepositoryManager_RunAtomic_BeginError(t *testing.T) {
+	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
-	defer mockDB.Close()
-	defer mock.ExpectationsWereMet()
+	defer func() {
+		err = mock.ExpectationsWereMet()
+		assert.NoError(t, err)
+		db.Close()
+	}()
+
+	expectedErr := errors.New("begin error")
+
+	mock.ExpectBegin().WillReturnError(expectedErr)
+
+	rm := repository.NewRepositoryManager(db)
+
+	err = rm.RunAtomic(func(atomicRM repository.RepositoryManager) error {
+		return nil
+	})
+
+	assert.Equal(t, expectedErr, err)
+}
+
+func Test_RepositoryManager_RunAtomic_FnError(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer func() {
+		err = mock.ExpectationsWereMet()
+		assert.NoError(t, err)
+		db.Close()
+	}()
 
 	mock.ExpectBegin()
 	mock.ExpectRollback()
 
-	rm := repository.NewRepositoryManager(mockDB)
+	rm := repository.NewRepositoryManager(db)
 
 	expectedErr := errors.New("fn error")
 
@@ -47,35 +78,67 @@ func Test_RunAtomic_FnError(t *testing.T) {
 	assert.Equal(t, expectedErr, err)
 }
 
-func Test_RunAtomic_CommitError(t *testing.T) {
-	mockDB, mock, err := sqlmock.New()
+func Test_RepositoryManager_RunAtomic_RollbackError(t *testing.T) {
+	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
-	defer mockDB.Close()
-	defer mock.ExpectationsWereMet()
+	defer func() {
+		err = mock.ExpectationsWereMet()
+		assert.NoError(t, err)
+		db.Close()
+	}()
+
+	expectedFnErr := errors.New("fn error")
+	expectedRbErr := errors.New("rollback error")
+	expectedJoinedErr := errors.Join(expectedFnErr, expectedRbErr)
 
 	mock.ExpectBegin()
-	mock.ExpectCommit().WillReturnError(errors.New("commit error"))
-	mock.ExpectRollback()
+	mock.ExpectRollback().WillReturnError(expectedRbErr)
 
-	rm := repository.NewRepositoryManager(mockDB)
+	rm := repository.NewRepositoryManager(db)
+
+	err = rm.RunAtomic(func(atomicRM repository.RepositoryManager) error {
+		return expectedFnErr
+	})
+
+	assert.Equal(t, expectedJoinedErr, err)
+}
+
+func Test_RepositoryManager_RunAtomic_CommitError(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer func() {
+		err = mock.ExpectationsWereMet()
+		assert.NoError(t, err)
+		db.Close()
+	}()
+
+	expectedErr := errors.New("commit error")
+
+	mock.ExpectBegin()
+	mock.ExpectCommit().WillReturnError(expectedErr)
+
+	rm := repository.NewRepositoryManager(db)
 
 	err = rm.RunAtomic(func(atomicRM repository.RepositoryManager) error {
 		return nil
 	})
 
-	assert.Error(t, err)
+	assert.Equal(t, expectedErr, err)
 }
 
-func Test_RunAtomic_NestedTransaction(t *testing.T) {
-	mockDB, mock, err := sqlmock.New()
+func Test_RepositoryManager_RunAtomic_NestedRunAtomic(t *testing.T) {
+	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
-	defer mockDB.Close()
-	defer mock.ExpectationsWereMet()
+	defer func() {
+		err = mock.ExpectationsWereMet()
+		assert.NoError(t, err)
+		db.Close()
+	}()
 
 	mock.ExpectBegin()
 	mock.ExpectCommit()
 
-	rm := repository.NewRepositoryManager(mockDB)
+	rm := repository.NewRepositoryManager(db)
 
 	err = rm.RunAtomic(func(atomicRM repository.RepositoryManager) error {
 		return atomicRM.RunAtomic(func(nestedAtomicRM repository.RepositoryManager) error {
@@ -87,33 +150,21 @@ func Test_RunAtomic_NestedTransaction(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func Test_RunAtomic_BeginError(t *testing.T) {
-	mockDB, mock, err := sqlmock.New()
+func Test_RepositoryManager_Getters(t *testing.T) {
+	db, _, err := sqlmock.New()
 	assert.NoError(t, err)
-	defer mockDB.Close()
-	defer mock.ExpectationsWereMet()
+	defer db.Close()
 
-	expectedErr := errors.New("begin error")
+	rm := repository.NewRepositoryManager(db)
 
-	mock.ExpectBegin().WillReturnError(expectedErr)
+	repos := map[string]any{
+		"Example Repo": rm.ExampleRepo(),
+		// Add more repositories here
+	}
 
-	rm := repository.NewRepositoryManager(mockDB)
-
-	err = rm.RunAtomic(func(atomicRM repository.RepositoryManager) error {
-		return nil
-	})
-
-	assert.Equal(t, expectedErr, err)
-}
-
-func Test_ExampleRepo(t *testing.T) {
-	mockDB, _, err := sqlmock.New()
-	assert.NoError(t, err)
-	defer mockDB.Close()
-
-	rm := repository.NewRepositoryManager(mockDB)
-
-	exampleRepo := rm.ExampleRepo()
-
-	assert.NotNil(t, exampleRepo)
+	for name, repository := range repos {
+		t.Run(name, func(t *testing.T) {
+			assert.NotNil(t, repository)
+		})
+	}
 }
