@@ -2,9 +2,9 @@ package service_test
 
 import (
 	"errors"
-	"sql-playground/repository"
-	"sql-playground/repository/mocks"
-	"sql-playground/service"
+	"sql-tx-abstraction/repository"
+	"sql-tx-abstraction/repository/mocks"
+	"sql-tx-abstraction/service"
 	"testing"
 
 	"github.com/golang/mock/gomock"

@@ -2,7 +2,7 @@ package repository_test
 
 import (
 	"errors"
-	"sql-playground/repository"
+	"sql-tx-abstraction/repository"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"

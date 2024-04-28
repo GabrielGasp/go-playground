@@ -7,7 +7,7 @@ package mocks
 import (
 	sql "database/sql"
 	reflect "reflect"
-	repository "sql-playground/repository"
+	repository "sql-tx-abstraction/repository"
 
 	gomock "github.com/golang/mock/gomock"
 )

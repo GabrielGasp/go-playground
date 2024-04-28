@@ -2,8 +2,8 @@ package main
 
 import (
 	"database/sql"
-	"sql-playground/repository"
-	"sql-playground/service"
+	"sql-tx-abstraction/repository"
+	"sql-tx-abstraction/service"
 
 	_ "github.com/mattn/go-sqlite3"
 )

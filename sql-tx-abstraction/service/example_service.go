@@ -1,7 +1,7 @@
 package service
 
 import (
-	"sql-playground/repository"
+	"sql-tx-abstraction/repository"
 )
 
 type ExampleService interface {
