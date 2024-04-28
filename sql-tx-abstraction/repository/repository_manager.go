@@ -26,14 +26,17 @@ func bootstrapRepositories(conn DBOps) repositories {
 
 // ----------------------------------------------------------
 
+type AtomicFn func(atomicRM RepositoryManager) error
+
 type RepositoryManager interface {
-	RunAtomic(fn func(atomicRepositoryManager RepositoryManager) error) error
+	RunAtomic(fn AtomicFn) error
 	ExampleRepo() ExampleRepo
 	// Add more repositories here
 }
 
 type repositoryManager struct {
 	db    *sql.DB
+	tx    *sql.Tx
 	repos repositories
 }
 
@@ -44,8 +47,8 @@ func NewRepositoryManager(db *sql.DB) RepositoryManager {
 	}
 }
 
-func (rm repositoryManager) RunAtomic(fn func(atomicRepositoryManager RepositoryManager) error) error {
-	if rm.db == nil { // this means we are already in a transaction
+func (rm repositoryManager) RunAtomic(fn AtomicFn) error {
+	if rm.tx != nil { // Reuse the existing tx in case of nested RunAtomic calls
 		return fn(rm)
 	}
 
@@ -54,9 +57,12 @@ func (rm repositoryManager) RunAtomic(fn func(atomicRepositoryManager Repository
 		return err
 	}
 
-	atomicRepositoryManager := repositoryManager{repos: bootstrapRepositories(tx)}
+	atomicRM := repositoryManager{
+		tx:    tx,
+		repos: bootstrapRepositories(tx),
+	}
 
-	if fnErr := fn(atomicRepositoryManager); fnErr != nil {
+	if fnErr := fn(atomicRM); fnErr != nil {
 		if rbErr := tx.Rollback(); rbErr != nil {
 			return errors.Join(fnErr, rbErr)
 		}

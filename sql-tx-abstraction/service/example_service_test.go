@@ -2,37 +2,30 @@ package service_test
 
 import (
 	"errors"
-	"sql-playground/mocks"
 	"sql-playground/repository"
+	"sql-playground/repository/mocks"
 	"sql-playground/service"
 	"testing"
 
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func Test_ExampleService_Do_Success(t *testing.T) {
-	repoManagerMock := &mocks.RepositoryManagerMock{}
-	defer repoManagerMock.AssertExpectations(t)
-	atomicRepoManagerMock := &mocks.RepositoryManagerMock{}
-	defer atomicRepoManagerMock.AssertExpectations(t)
-	exampleRepoMock := &mocks.ExampleRepoMock{}
-	defer exampleRepoMock.AssertExpectations(t)
+	mockCtrl := gomock.NewController(t)
+	repoManagerMock := mocks.NewMockRepositoryManager(mockCtrl)
+	atomicRepoManagerMock := mocks.NewMockRepositoryManager(mockCtrl)
+	exampleRepoMock := mocks.NewMockExampleRepo(mockCtrl)
 
 	repoManagerMock.
-		On("RunAtomic", mock.Anything).
-		Run(func(args mock.Arguments) {
-			fn := args.Get(0).(func(atomicRM repository.RepositoryManager) error)
+		EXPECT().
+		RunAtomic(gomock.Any()).
+		DoAndReturn(func(fn repository.AtomicFn) error {
+			atomicRepoManagerMock.EXPECT().ExampleRepo().Return(exampleRepoMock)
+			exampleRepoMock.EXPECT().Do().Return(nil)
 
-			atomicRepoManagerMock.On("ExampleRepo").Return(exampleRepoMock).Once()
-			exampleRepoMock.On("Do").Return(nil).Once()
-
-			err := fn(atomicRepoManagerMock)
-
-			assert.Nil(t, err)
-		}).
-		Return(nil).
-		Once()
+			return fn(atomicRepoManagerMock)
+		})
 
 	service := service.NewExampleService(repoManagerMock)
 
@@ -42,29 +35,22 @@ func Test_ExampleService_Do_Success(t *testing.T) {
 }
 
 func Test_ExampleService_Do_Failure(t *testing.T) {
-	repoManagerMock := &mocks.RepositoryManagerMock{}
-	defer repoManagerMock.AssertExpectations(t)
-	atomicRepoManagerMock := &mocks.RepositoryManagerMock{}
-	defer atomicRepoManagerMock.AssertExpectations(t)
-	exampleRepoMock := &mocks.ExampleRepoMock{}
-	defer exampleRepoMock.AssertExpectations(t)
+	mockCtrl := gomock.NewController(t)
+	repoManagerMock := mocks.NewMockRepositoryManager(mockCtrl)
+	atomicRepoManagerMock := mocks.NewMockRepositoryManager(mockCtrl)
+	exampleRepoMock := mocks.NewMockExampleRepo(mockCtrl)
 
 	expectedErr := errors.New("repo Do error")
 
 	repoManagerMock.
-		On("RunAtomic", mock.Anything).
-		Run(func(args mock.Arguments) {
-			fn := args.Get(0).(func(atomicRM repository.RepositoryManager) error)
+		EXPECT().
+		RunAtomic(gomock.Any()).
+		DoAndReturn(func(fn repository.AtomicFn) error {
+			atomicRepoManagerMock.EXPECT().ExampleRepo().Return(exampleRepoMock)
+			exampleRepoMock.EXPECT().Do().Return(expectedErr)
 
-			atomicRepoManagerMock.On("ExampleRepo").Return(exampleRepoMock).Once()
-			exampleRepoMock.On("Do").Return(expectedErr).Once()
-
-			err := fn(atomicRepoManagerMock)
-
-			assert.Equal(t, expectedErr, err)
-		}).
-		Return(expectedErr).
-		Once()
+			return fn(atomicRepoManagerMock)
+		})
 
 	service := service.NewExampleService(repoManagerMock)
 
