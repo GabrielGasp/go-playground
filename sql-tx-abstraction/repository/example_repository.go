@@ -9,10 +9,10 @@ type ExampleRepo interface {
 }
 
 type exampleRepo struct {
-	conn DBOps
+	conn dbOps
 }
 
-func NewExampleRepo(conn DBOps) ExampleRepo {
+func NewExampleRepo(conn dbOps) ExampleRepo {
 	return exampleRepo{conn: conn}
 }
 

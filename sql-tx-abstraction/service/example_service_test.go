@@ -13,6 +13,7 @@ import (
 
 func Test_ExampleService_Do_Success(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
 	repoManagerMock := mocks.NewMockRepositoryManager(mockCtrl)
 	atomicRepoManagerMock := mocks.NewMockRepositoryManager(mockCtrl)
 	exampleRepoMock := mocks.NewMockExampleRepo(mockCtrl)
@@ -36,6 +37,7 @@ func Test_ExampleService_Do_Success(t *testing.T) {
 
 func Test_ExampleService_Do_Failure(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
 	repoManagerMock := mocks.NewMockRepositoryManager(mockCtrl)
 	atomicRepoManagerMock := mocks.NewMockRepositoryManager(mockCtrl)
 	exampleRepoMock := mocks.NewMockExampleRepo(mockCtrl)

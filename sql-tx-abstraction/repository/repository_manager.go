@@ -5,7 +5,7 @@ import (
 	"errors"
 )
 
-type DBOps interface {
+type dbOps interface {
 	Exec(query string, args ...interface{}) (sql.Result, error)
 	Prepare(query string) (*sql.Stmt, error)
 	Query(query string, args ...interface{}) (*sql.Rows, error)
@@ -17,7 +17,7 @@ type repositories struct {
 	// Add more repositories here
 }
 
-func bootstrapRepositories(conn DBOps) repositories {
+func bootstrapRepositories(conn dbOps) repositories {
 	return repositories{
 		ExampleRepo: NewExampleRepo(conn),
 		// Add more repositories here

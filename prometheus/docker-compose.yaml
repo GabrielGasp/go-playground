@@ -1,0 +1,32 @@
+services:
+  myapp:
+    build: .
+    ports: 
+      - 7766:7766
+    environment:
+      - version=0.1.0
+
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml # .yaml does not work
+    depends_on:
+      - myapp
+
+  grafana:
+    image: grafana/grafana:10.4.2
+    ports:
+      - 3000:3000
+    volumes:
+      - ./grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+      - grafana:/var/lib/grafana # This stores the dashboards and stuff
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+
+volumes:
+  grafana:

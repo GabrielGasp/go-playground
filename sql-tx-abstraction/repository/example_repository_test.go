@@ -10,14 +10,16 @@ import (
 )
 
 func Test_ExampleRepo_Do_Success(t *testing.T) {
-	mockDB, mock, err := sqlmock.New()
+	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
-	defer mockDB.Close()
-	defer mock.ExpectationsWereMet()
+	defer func() {
+		assert.NoError(t, mock.ExpectationsWereMet())
+		db.Close()
+	}()
 
 	mock.ExpectQuery("SELECT 1").WillReturnRows(sqlmock.NewRows([]string{"result"}).AddRow(1))
 
-	exampleRepo := repository.NewExampleRepo(mockDB)
+	exampleRepo := repository.NewExampleRepo(db)
 
 	err = exampleRepo.Do()
 
@@ -25,16 +27,18 @@ func Test_ExampleRepo_Do_Success(t *testing.T) {
 }
 
 func Test_ExampleRepo_Do_QueryRowError(t *testing.T) {
-	mockDB, mock, err := sqlmock.New()
+	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
-	defer mockDB.Close()
-	defer mock.ExpectationsWereMet()
+	defer func() {
+		assert.NoError(t, mock.ExpectationsWereMet())
+		db.Close()
+	}()
 
 	expectedErr := errors.New("QueryRow Error")
 
 	mock.ExpectQuery("SELECT 1").WillReturnError(expectedErr)
 
-	exampleRepo := repository.NewExampleRepo(mockDB)
+	exampleRepo := repository.NewExampleRepo(db)
 
 	err = exampleRepo.Do()
 

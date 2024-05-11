@@ -13,8 +13,7 @@ func Test_RepositoryManager_RunAtomic_Success(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
 	defer func() {
-		err = mock.ExpectationsWereMet()
-		assert.NoError(t, err)
+		assert.NoError(t, mock.ExpectationsWereMet())
 		db.Close()
 	}()
 
@@ -37,8 +36,7 @@ func Test_RepositoryManager_RunAtomic_BeginError(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
 	defer func() {
-		err = mock.ExpectationsWereMet()
-		assert.NoError(t, err)
+		assert.NoError(t, mock.ExpectationsWereMet())
 		db.Close()
 	}()
 
@@ -59,8 +57,7 @@ func Test_RepositoryManager_RunAtomic_FnError(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
 	defer func() {
-		err = mock.ExpectationsWereMet()
-		assert.NoError(t, err)
+		assert.NoError(t, mock.ExpectationsWereMet())
 		db.Close()
 	}()
 
@@ -82,8 +79,7 @@ func Test_RepositoryManager_RunAtomic_RollbackError(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
 	defer func() {
-		err = mock.ExpectationsWereMet()
-		assert.NoError(t, err)
+		assert.NoError(t, mock.ExpectationsWereMet())
 		db.Close()
 	}()
 
@@ -107,8 +103,7 @@ func Test_RepositoryManager_RunAtomic_CommitError(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
 	defer func() {
-		err = mock.ExpectationsWereMet()
-		assert.NoError(t, err)
+		assert.NoError(t, mock.ExpectationsWereMet())
 		db.Close()
 	}()
 
@@ -130,8 +125,7 @@ func Test_RepositoryManager_RunAtomic_NestedRunAtomic(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
 	defer func() {
-		err = mock.ExpectationsWereMet()
-		assert.NoError(t, err)
+		assert.NoError(t, mock.ExpectationsWereMet())
 		db.Close()
 	}()
 
