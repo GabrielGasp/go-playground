@@ -12,15 +12,15 @@ type NullableOrOptional[T any] struct {
 	Value   T
 }
 
-func (f *NullableOrOptional[T]) UnmarshalJSON(b []byte) error {
-	f.Present = true
+func (field *NullableOrOptional[T]) UnmarshalJSON(b []byte) error {
+	field.Present = true
 
 	if string(b) == "null" {
-		f.Null = true
+		field.Null = true
 		return nil
 	}
 
-	return json.Unmarshal(b, &f.Value)
+	return json.Unmarshal(b, &field.Value)
 }
 
 type jstruct struct {
@@ -29,7 +29,7 @@ type jstruct struct {
 }
 
 func main() {
-	j := []byte(`{"name":"Xablau", "gender": "male"}`)
+	j := []byte(`{"name":"Xablau", "age": 10}`)
 
 	s := jstruct{}
 
@@ -42,15 +42,9 @@ func main() {
 		} else {
 			fmt.Println(err)
 		}
+
+		return
 	}
 
 	fmt.Printf("%+v\n", s)
-
-	// jj := jstruct{
-	// 	Name: "Xena",
-	// }
-
-	// jj2, _ := json.Marshal(jj)
-
-	// fmt.Println(string(jj2))
 }
