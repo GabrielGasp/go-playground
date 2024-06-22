@@ -1,0 +1,10 @@
+packages:
+  github.com/gabrielgasp/mockery-playground/pkga:
+    config:
+      all: true
+  github.com/gabrielgasp/mockery-playground/pkgb:
+    config:
+      all: true
+  io:
+    config:
+      all: true
