@@ -1,36 +1,17 @@
 package hash
 
 import (
-	"time"
-
-	"github.com/mitchellh/hashstructure/v2"
+	"crypto/md5"
+	"crypto/sha256"
+	"encoding/hex"
 )
 
-type Affiliate struct {
-	ID                       string
-	Username                 string
-	Name                     string
-	Email                    string
-	Phone                    string
-	DocumentType             string
-	DocumentNumber           string
-	Type                     string
-	MinimumGuaranteedEnabled bool
-	MinimumGuaranteedValue   int
-	Status                   string
-	UserID                   string
-	ManagerID                string
-	CollaboratorID           string
-	CreatedAt                time.Time
-	UpdatedAt                time.Time
-	DeletedAt                time.Time
+func Sum256(s string) string {
+	hash := sha256.Sum256([]byte(s))
+	return hex.EncodeToString(hash[:])
 }
 
-func Hash(v any) {
-	_, err := hashstructure.Hash(v, hashstructure.FormatV2, nil)
-	if err != nil {
-		panic(err)
-	}
-
-	// fmt.Println(hash)
+func SumMD5(s string) string {
+	hash := md5.Sum([]byte(s))
+	return hex.EncodeToString(hash[:])
 }

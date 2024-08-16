@@ -1,11 +1,12 @@
 package main
 
 import (
-	"bench/forwarded"
+	"bench/hash"
 	"fmt"
 )
 
 func main() {
-	realIP := forwarded.GetIpWithoutSplit(`for=192.168.0.1, for=192.168.0.2;host=api.homolog.boongcloud.net;proto=https`)
-	fmt.Println(realIP)
+	s := "55252f79-8874-473b-b0de-c6816a0ef06e.431091077177.rollout-tenants.0"
+	fmt.Println(hash.Sum256(s))
+	fmt.Println(hash.SumMD5(s))
 }
