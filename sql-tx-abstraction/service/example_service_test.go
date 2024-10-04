@@ -14,21 +14,23 @@ import (
 func Test_ExampleService_Do_Success(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
-	repoManagerMock := mocks.NewMockRepositoryManager(mockCtrl)
-	atomicRepoManagerMock := mocks.NewMockRepositoryManager(mockCtrl)
+
 	exampleRepoMock := mocks.NewMockExampleRepo(mockCtrl)
+	txProviderMock := mocks.NewMockTransactionProvider(mockCtrl)
 
-	repoManagerMock.
+	atomicRepos := repository.Repositories{
+		ExampleRepo: exampleRepoMock,
+	}
+
+	txProviderMock.
 		EXPECT().
-		RunAtomic(gomock.Any()).
-		DoAndReturn(func(fn repository.AtomicFn) error {
-			atomicRepoManagerMock.EXPECT().ExampleRepo().Return(exampleRepoMock)
+		RunInTx(gomock.Any()).
+		DoAndReturn(func(fn repository.TxFn) error {
 			exampleRepoMock.EXPECT().Do().Return(nil)
-
-			return fn(atomicRepoManagerMock)
+			return fn(atomicRepos)
 		})
 
-	service := service.NewExampleService(repoManagerMock)
+	service := service.NewExampleService(exampleRepoMock, txProviderMock)
 
 	err := service.Do()
 
@@ -38,23 +40,26 @@ func Test_ExampleService_Do_Success(t *testing.T) {
 func Test_ExampleService_Do_Failure(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
-	repoManagerMock := mocks.NewMockRepositoryManager(mockCtrl)
-	atomicRepoManagerMock := mocks.NewMockRepositoryManager(mockCtrl)
+
 	exampleRepoMock := mocks.NewMockExampleRepo(mockCtrl)
+	txProviderMock := mocks.NewMockTransactionProvider(mockCtrl)
+
+	atomicRepos := repository.Repositories{
+		ExampleRepo: exampleRepoMock,
+	}
 
 	expectedErr := errors.New("repo Do error")
 
-	repoManagerMock.
+	txProviderMock.
 		EXPECT().
-		RunAtomic(gomock.Any()).
-		DoAndReturn(func(fn repository.AtomicFn) error {
-			atomicRepoManagerMock.EXPECT().ExampleRepo().Return(exampleRepoMock)
+		RunInTx(gomock.Any()).
+		DoAndReturn(func(fn repository.TxFn) error {
 			exampleRepoMock.EXPECT().Do().Return(expectedErr)
 
-			return fn(atomicRepoManagerMock)
+			return fn(atomicRepos)
 		})
 
-	service := service.NewExampleService(repoManagerMock)
+	service := service.NewExampleService(exampleRepoMock, txProviderMock)
 
 	err := service.Do()
 

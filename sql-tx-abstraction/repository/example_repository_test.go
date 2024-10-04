@@ -19,9 +19,9 @@ func Test_ExampleRepo_Do_Success(t *testing.T) {
 
 	mock.ExpectQuery("SELECT 1").WillReturnRows(sqlmock.NewRows([]string{"result"}).AddRow(1))
 
-	exampleRepo := repository.NewExampleRepo(db)
+	repos := repository.BootstrapRepositories(db)
 
-	err = exampleRepo.Do()
+	err = repos.ExampleRepo.Do()
 
 	assert.NoError(t, err)
 }
@@ -38,9 +38,9 @@ func Test_ExampleRepo_Do_QueryRowError(t *testing.T) {
 
 	mock.ExpectQuery("SELECT 1").WillReturnError(expectedErr)
 
-	exampleRepo := repository.NewExampleRepo(db)
+	repos := repository.BootstrapRepositories(db)
 
-	err = exampleRepo.Do()
+	err = repos.ExampleRepo.Do()
 
 	assert.Equal(t, expectedErr, err)
 }

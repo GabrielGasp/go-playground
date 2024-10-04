@@ -9,30 +9,37 @@ type ExampleService interface {
 }
 
 type exampleService struct {
-	rm repository.RepositoryManager
+	exampleRepo repository.ExampleRepo
+	txProvider  repository.TransactionProvider
 }
 
-func NewExampleService(rm repository.RepositoryManager) ExampleService {
-	return exampleService{rm: rm}
+func NewExampleService(
+	exampleRepo repository.ExampleRepo,
+	txProvider repository.TransactionProvider,
+) ExampleService {
+	return exampleService{
+		exampleRepo: exampleRepo,
+		txProvider:  txProvider,
+	}
 }
 
 // func (s exampleService) Do() error {
-// 	fmt.Println("Without RunAtomic")
-// 	s.rm.ExampleRepo().Do()
+// 	fmt.Println("Without RunInTx")
+// 	s.exampleRepo.Do()
 
 // 	fmt.Println("")
 
-// 	fmt.Println("With RunAtomic")
-// 	s.rm.RunAtomic(func(atomicRM repository.RepositoryManager) error {
-// 		return atomicRM.ExampleRepo().Do()
+// 	fmt.Println("With RunInTx")
+// 	s.txProvider.RunInTx(func(txRepos repository.Repositories) error {
+// 		return txRepos.ExampleRepo.Do()
 // 	})
 
 // 	return nil
 // }
 
 func (s exampleService) Do() error {
-	err := s.rm.RunAtomic(func(atomicRM repository.RepositoryManager) error {
-		return atomicRM.ExampleRepo().Do()
+	err := s.txProvider.RunInTx(func(txRepos repository.Repositories) error {
+		return txRepos.ExampleRepo.Do()
 	})
 	if err != nil {
 		return err

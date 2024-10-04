@@ -11,9 +11,10 @@ import (
 func main() {
 	db, _ := sql.Open("sqlite3", ":memory:")
 
-	rm := repository.NewRepositoryManager(db)
+	repos := repository.BootstrapRepositories(db)
+	txProvider := repository.NewTransactionProvider(db)
 
-	svc := service.NewExampleService(rm)
+	svc := service.NewExampleService(repos.ExampleRepo, txProvider)
 
 	_ = svc.Do()
 }
