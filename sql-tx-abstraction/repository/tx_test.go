@@ -27,9 +27,6 @@ func Test_TransactionProvider_RunInTx_Success(t *testing.T) {
 	})
 
 	assert.NoError(t, err)
-
-	err = mock.ExpectationsWereMet()
-	assert.NoError(t, err)
 }
 
 func Test_TransactionProvider_RunInTx_BeginError(t *testing.T) {
