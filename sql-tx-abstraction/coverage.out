@@ -1,27 +1,5 @@
 mode: atomic
 sql-tx-abstraction/main.go:11.13,20.2 5 0
-sql-tx-abstraction/repository/mocks/example_repository.go:25.67,29.2 3 0
-sql-tx-abstraction/repository/mocks/example_repository.go:32.65,34.2 1 0
-sql-tx-abstraction/repository/mocks/example_repository.go:37.38,42.2 4 0
-sql-tx-abstraction/repository/mocks/example_repository.go:45.58,48.2 2 0
-sql-tx-abstraction/repository/mocks/tx.go:26.83,30.2 3 0
-sql-tx-abstraction/repository/mocks/tx.go:33.81,35.2 1 0
-sql-tx-abstraction/repository/mocks/tx.go:38.69,43.2 4 0
-sql-tx-abstraction/repository/mocks/tx.go:46.85,49.2 2 0
-sql-tx-abstraction/repository/mocks/example_repository.go:25.67,29.2 3 2
-sql-tx-abstraction/repository/mocks/example_repository.go:32.65,34.2 1 2
-sql-tx-abstraction/repository/mocks/example_repository.go:37.38,42.2 4 2
-sql-tx-abstraction/repository/mocks/example_repository.go:45.58,48.2 2 2
-sql-tx-abstraction/repository/mocks/tx.go:26.83,30.2 3 2
-sql-tx-abstraction/repository/mocks/tx.go:33.81,35.2 1 2
-sql-tx-abstraction/repository/mocks/tx.go:38.69,43.2 4 2
-sql-tx-abstraction/repository/mocks/tx.go:46.85,49.2 2 2
-sql-tx-abstraction/service/example_service.go:19.18,24.2 1 2
-sql-tx-abstraction/service/example_service.go:40.36,41.74 1 2
-sql-tx-abstraction/service/example_service.go:41.74,43.3 1 2
-sql-tx-abstraction/service/example_service.go:44.2,44.16 1 2
-sql-tx-abstraction/service/example_service.go:44.16,46.3 1 1
-sql-tx-abstraction/service/example_service.go:48.2,48.12 1 1
 sql-tx-abstraction/repository/example_repository.go:15.45,17.2 1 6
 sql-tx-abstraction/repository/example_repository.go:19.33,23.66 3 2
 sql-tx-abstraction/repository/example_repository.go:23.66,25.3 1 1
@@ -35,3 +13,9 @@ sql-tx-abstraction/repository/tx.go:33.18,35.3 1 2
 sql-tx-abstraction/repository/tx.go:37.2,38.18 2 2
 sql-tx-abstraction/repository/tx.go:38.18,40.3 1 1
 sql-tx-abstraction/repository/tx.go:42.2,42.14 1 1
+sql-tx-abstraction/service/example_service.go:19.18,24.2 1 2
+sql-tx-abstraction/service/example_service.go:40.36,41.74 1 2
+sql-tx-abstraction/service/example_service.go:41.74,43.3 1 2
+sql-tx-abstraction/service/example_service.go:44.2,44.16 1 2
+sql-tx-abstraction/service/example_service.go:44.16,46.3 1 1
+sql-tx-abstraction/service/example_service.go:48.2,48.12 1 1

@@ -1,0 +1,11 @@
+with-expecter: true
+outpkg: testdata
+packages:
+  sql-tx-abstraction/repository:
+    interfaces:
+      ExampleRepo:
+        config:
+          dir: service/testdata
+      TransactionProvider:
+        config:
+          dir: service/testdata

@@ -3,34 +3,31 @@ package service_test
 import (
 	"errors"
 	"sql-tx-abstraction/repository"
-	"sql-tx-abstraction/repository/mocks"
 	"sql-tx-abstraction/service"
+	"sql-tx-abstraction/service/testdata"
 	"testing"
 
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func Test_ExampleService_Do_Success(t *testing.T) {
-	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
-
-	exampleRepoMock := mocks.NewMockExampleRepo(mockCtrl)
-	txProviderMock := mocks.NewMockTransactionProvider(mockCtrl)
+	mockExampleRepo := testdata.NewMockExampleRepo(t)
+	mockTxProvider := testdata.NewMockTransactionProvider(t)
 
 	atomicRepos := repository.Repositories{
-		ExampleRepo: exampleRepoMock,
+		ExampleRepo: mockExampleRepo,
 	}
 
-	txProviderMock.
+	mockTxProvider.
 		EXPECT().
-		RunInTx(gomock.Any()).
-		DoAndReturn(func(fn repository.TxFn) error {
-			exampleRepoMock.EXPECT().Do().Return(nil)
+		RunInTx(mock.Anything).
+		RunAndReturn(func(fn repository.TxFn) error {
+			mockExampleRepo.EXPECT().Do().Return(nil)
 			return fn(atomicRepos)
 		})
 
-	service := service.NewExampleService(exampleRepoMock, txProviderMock)
+	service := service.NewExampleService(mockExampleRepo, mockTxProvider)
 
 	err := service.Do()
 
@@ -38,28 +35,24 @@ func Test_ExampleService_Do_Success(t *testing.T) {
 }
 
 func Test_ExampleService_Do_Failure(t *testing.T) {
-	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
-
-	exampleRepoMock := mocks.NewMockExampleRepo(mockCtrl)
-	txProviderMock := mocks.NewMockTransactionProvider(mockCtrl)
+	mockExampleRepo := testdata.NewMockExampleRepo(t)
+	mockTxProvider := testdata.NewMockTransactionProvider(t)
 
 	atomicRepos := repository.Repositories{
-		ExampleRepo: exampleRepoMock,
+		ExampleRepo: mockExampleRepo,
 	}
 
 	expectedErr := errors.New("repo Do error")
 
-	txProviderMock.
+	mockTxProvider.
 		EXPECT().
-		RunInTx(gomock.Any()).
-		DoAndReturn(func(fn repository.TxFn) error {
-			exampleRepoMock.EXPECT().Do().Return(expectedErr)
-
+		RunInTx(mock.Anything).
+		RunAndReturn(func(fn repository.TxFn) error {
+			mockExampleRepo.EXPECT().Do().Return(expectedErr)
 			return fn(atomicRepos)
 		})
 
-	service := service.NewExampleService(exampleRepoMock, txProviderMock)
+	service := service.NewExampleService(mockExampleRepo, mockTxProvider)
 
 	err := service.Do()
 
